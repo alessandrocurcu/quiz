@@ -1,0 +1,30 @@
+{
+  "version": 1,
+  "skills": {
+    "idea-refine": {
+      "source": "alessandrocurcu/skills",
+      "sourceType": "github",
+      "computedHash": "b94e228aa69163b51337b7373a76dfe13b13ed209c984fab4261c1306fafd404"
+    },
+    "planning-and-task-breakdown": {
+      "source": "alessandrocurcu/skills",
+      "sourceType": "github",
+      "computedHash": "a6d4913e72e4e45c7064bf64ec800733ddd415172d532133142cc12076d02814"
+    },
+    "vue-best-practices": {
+      "source": "alessandrocurcu/skills",
+      "sourceType": "github",
+      "computedHash": "729289f06960b5197a9c58845812b7336303807ee4f50259cb78f3fe5b67d529"
+    },
+    "vue-router-best-practices": {
+      "source": "alessandrocurcu/skills",
+      "sourceType": "github",
+      "computedHash": "19564a8ea0bde5d60f58cb103071c0d57a11a9d18944d55a863eecb68b844696"
+    },
+    "vueuse-functions": {
+      "source": "alessandrocurcu/skills",
+      "sourceType": "github",
+      "computedHash": "0e474d2dfb4d5db0ad436921e2bb7aefde3627d89ba905f9f014637db302a2ca"
+    }
+  }
+}

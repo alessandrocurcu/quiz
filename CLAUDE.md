@@ -1,0 +1,2 @@
+- Use sempre pnpm
+- For TypeScript conventions see docs/typescript.md
