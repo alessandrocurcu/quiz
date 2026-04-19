@@ -1,0 +1,161 @@
+{
+  "title": "Environment Configuration in Node.js",
+  "flashcards": [
+    {
+      "id": "f1",
+      "question": "Come si caricano le variabili d'ambiente da un file .env usando solo Node.js nativo?",
+      "answer": "Con il flag --env-file: `node --env-file=.env app.ts`. Si possono passare più flag in sequenza (es. --env-file=.env --env-file=.env.local) e i file successivi sovrascrivono i precedenti. Non serve più la libreria dotenv."
+    },
+    {
+      "id": "f2",
+      "question": "Esiste un modo programmatico per caricare un file .env in Node.js?",
+      "answer": "Sì, `process.loadEnvFile()` importabile da 'node:process'. Senza argomenti carica il .env nella directory corrente, altrimenti accetta un path specifico (es. loadEnvFile('.env.local')). Utile quando non si può controllare l'invocazione del processo."
+    },
+    {
+      "id": "f3",
+      "question": "Perché validare le variabili d'ambiente all'avvio?",
+      "answer": "process.env contiene sempre stringhe (o undefined), senza garanzie di tipo o presenza. Validare all'avvio con uno schema permette fail-fast su configurazioni errate, fornisce tipi corretti in TypeScript (number, boolean, enum) e documenta le variabili richieste."
+    },
+    {
+      "id": "f4",
+      "question": "Come si valida process.env con Zod in modo type-safe?",
+      "answer": "Si definisce uno schema con z.object(), usando z.coerce.number() per i numerici e z.enum() per i valori limitati. Poi si chiama schema.safeParse(process.env), si logga l'errore formattato e si fa process.exit(1) in caso di fallimento. Il tipo Env si estrae con z.infer<typeof Schema>."
+    },
+    {
+      "id": "f5",
+      "question": "Perché NODE_ENV è considerato un antipattern?",
+      "answer": "Conflua preoccupazioni diverse in una sola variabile: rilevamento ambiente, toggle di comportamento, flag di ottimizzazione e impostazioni di sicurezza. Un controllo `NODE_ENV === 'development'` può attivare contemporaneamente debug logging, disattivare rate limiting e mockare il DB, creando comportamenti nascosti e difficili da testare."
+    },
+    {
+      "id": "f6",
+      "question": "Qual è l'alternativa a NODE_ENV?",
+      "answer": "Variabili esplicite per ogni preoccupazione: LOG_LEVEL, LOG_PRETTY, RATE_LIMIT_ENABLED, HTTPS_ONLY, DATABASE_URL, ecc. Questo rende la configurazione esplicita e discoverable, permette controllo fine per ambiente, evita cambi di comportamento nascosti e semplifica il testing."
+    },
+    {
+      "id": "f7",
+      "question": "Cos'è il Configuration Object Pattern?",
+      "answer": "Un oggetto tipizzato (interface Config) creato una volta all'avvio che raccoglie e trasforma tutte le variabili d'ambiente in valori applicativi (parsing di numeri, default, required checks). L'app importa `config` invece di leggere process.env sparso ovunque, centralizzando la configurazione."
+    },
+    {
+      "id": "f8",
+      "question": "Come si gestisce una variabile d'ambiente obbligatoria?",
+      "answer": "Con una helper come `requireEnv(name)` che lancia un Error esplicito se la variabile è undefined o vuota. Chiamata all'avvio, fa crashare il processo subito anziché produrre errori nascosti più avanti (es. connessioni DB fallite o token JWT invalidi)."
+    },
+    {
+      "id": "f9",
+      "question": "Qual è il ruolo del file .env.example?",
+      "answer": "È il file committato in git che documenta tutte le variabili richieste dall'applicazione con valori di esempio o placeholder. Serve come reference per gli altri sviluppatori e per CI/CD. Il .env reale con valori veri invece NON va mai committato e va messo in .gitignore."
+    },
+    {
+      "id": "f10",
+      "question": "Dove vanno i secret in produzione?",
+      "answer": "Mai nel codice o in git. Vanno in un secrets manager appropriato all'infrastruttura: AWS Secrets Manager, GCP Secret Manager, Azure Key Vault per i cloud; HashiCorp Vault, Doppler, Infisical come tool dedicati; Kubernetes Secrets per container; GitHub Actions Secrets per CI/CD. Questi servizi iniettano i valori come env variables a runtime."
+    },
+    {
+      "id": "f11",
+      "question": "Come si implementano feature flag tramite environment variables?",
+      "answer": "Si legge process.env.FEATURE_X === 'true' in un oggetto centrale `features`, poi si espone una funzione `isFeatureEnabled(name)` che fa da unico punto di accesso. Semplice, senza dipendenze, e permette di attivare/disattivare funzionalità senza redeploy del codice (solo restart con nuove env)."
+    }
+  ],
+  "quiz": [
+    {
+      "id": "q1",
+      "question": "Cosa succede passando più flag --env-file allo stesso comando node?",
+      "options": [
+        "Node lancia un errore: è permesso un solo file",
+        "Viene usato solo il primo file; gli altri sono ignorati",
+        "I file vengono uniti e i successivi sovrascrivono le variabili dei precedenti",
+        "Viene usato solo l'ultimo file; i precedenti sono ignorati"
+      ],
+      "correctIndex": 2
+    },
+    {
+      "id": "q2",
+      "question": "Qual è il tipo di tutti i valori presenti in process.env?",
+      "options": [
+        "string | number | boolean",
+        "string | undefined",
+        "any",
+        "Il tipo dichiarato nello schema Zod o TypeBox"
+      ],
+      "correctIndex": 1
+    },
+    {
+      "id": "q3",
+      "question": "In Zod, come si converte una variabile d'ambiente (stringa) in number con un default?",
+      "options": [
+        "z.number().default(3000)",
+        "z.string().transform(Number).default('3000')",
+        "z.coerce.number().default(3000)",
+        "z.parseInt().default(3000)"
+      ],
+      "correctIndex": 2
+    },
+    {
+      "id": "q4",
+      "question": "Qual è il problema principale di NODE_ENV come variabile di configurazione?",
+      "options": [
+        "Non è supportato dalle versioni recenti di Node.js",
+        "Conflua preoccupazioni diverse (logging, sicurezza, infrastruttura) in una singola variabile",
+        "È lenta da leggere a runtime",
+        "Non è tipizzabile in TypeScript"
+      ],
+      "correctIndex": 1
+    },
+    {
+      "id": "q5",
+      "question": "Quale file .env va committato in git?",
+      "options": [
+        ".env con i valori di sviluppo",
+        ".env.local con i valori dello sviluppatore",
+        ".env.example con variabili documentate e placeholder",
+        ".env.production con i segreti di produzione"
+      ],
+      "correctIndex": 2
+    },
+    {
+      "id": "q6",
+      "question": "Perché conviene validare le env variables all'avvio con un fail-fast (process.exit(1))?",
+      "options": [
+        "Per migliorare le performance runtime dell'applicazione",
+        "Perché Node.js lo richiede quando si usa TypeScript",
+        "Per crashare subito con un errore chiaro anziché produrre bug nascosti più avanti nell'esecuzione",
+        "Per generare automaticamente il file .env.example"
+      ],
+      "correctIndex": 2
+    },
+    {
+      "id": "q7",
+      "question": "Dove vanno gestiti i secret in un ambiente di produzione cloud?",
+      "options": [
+        "In un file .env.production committato in un repository privato",
+        "In un secrets manager (AWS Secrets Manager, Vault, Doppler) che li inietta come env variables a runtime",
+        "Hardcoded in una classe Config del codice sorgente",
+        "In un commento nel README del progetto"
+      ],
+      "correctIndex": 1
+    },
+    {
+      "id": "q8",
+      "question": "Qual è il vantaggio principale del Configuration Object Pattern rispetto a leggere process.env ovunque nel codice?",
+      "options": [
+        "Riduce il bundle size dell'applicazione",
+        "Centralizza parsing, default e validazione in un unico punto tipizzato",
+        "È più veloce a runtime",
+        "Rende automatica la gestione dei secret in produzione"
+      ],
+      "correctIndex": 1
+    },
+    {
+      "id": "q9",
+      "question": "Come si legge un feature flag booleano da una env variable in modo robusto?",
+      "options": [
+        "Boolean(process.env.FEATURE_X)",
+        "process.env.FEATURE_X === 'true'",
+        "!!process.env.FEATURE_X",
+        "process.env.FEATURE_X == true"
+      ],
+      "correctIndex": 1
+    }
+  ]
+}
