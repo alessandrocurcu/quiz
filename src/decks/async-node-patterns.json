@@ -1,0 +1,150 @@
+{
+  "title": "Async Patterns in Node.js",
+  "flashcards": [
+    {
+      "id": "f1",
+      "question": "Perché preferire async/await rispetto alle catene di .then()?",
+      "answer": "async/await è syntactic sugar sopra le Promise: rende il codice asincrono leggibile in stile sincrono, migliora il debugging (stack trace più chiari) e fa funzionare meglio il type inference di TypeScript. Le catene di .then() annidate sono difficili da leggere e mantenere."
+    },
+    {
+      "id": "f2",
+      "question": "Cosa fa await a livello di event loop? Blocca il thread?",
+      "answer": "No, await sospende solo l'esecuzione della funzione async corrente, restituendo il controllo all'event loop. Node.js nel frattempo può eseguire altro codice. Quando la Promise si risolve, la funzione riprende dal punto dell'await."
+    },
+    {
+      "id": "f3",
+      "question": "Quando usare Promise.all()?",
+      "answer": "Per eseguire più operazioni asincrone indipendenti in parallelo e aspettare che finiscano tutte. Tutte le Promise partono contemporaneamente e il tempo totale è quello della più lenta, non la somma. Utile quando le operazioni non dipendono l'una dall'altra."
+    },
+    {
+      "id": "f4",
+      "question": "Qual è il comportamento di Promise.all() in caso di errore?",
+      "answer": "È fail-fast: se una qualsiasi Promise rigetta, Promise.all() rigetta immediatamente con quell'errore. Le altre Promise continuano a essere eseguite in background ma i loro risultati vengono scartati. Non c'è modo di recuperare i risultati parziali."
+    },
+    {
+      "id": "f5",
+      "question": "Perché Promise.all() non basta e serve il concurrency control?",
+      "answer": "Promise.all() su un array di 10.000 elementi lancia 10.000 operazioni contemporaneamente, esaurendo connessioni DB, memoria o triggerando i rate limit delle API esterne. Servono librerie come p-limit o p-map per limitare il numero di operazioni in volo contemporaneamente."
+    },
+    {
+      "id": "f6",
+      "question": "Qual è la differenza tra p-limit e p-map?",
+      "answer": "p-limit espone una funzione 'limit' che avvolge singole Promise, da combinare con Promise.all e array.map. p-map è un'astrazione superiore: prende array, funzione di mapping e opzione concurrency, ed è più ergonomico quando stai già mappando su un array."
+    },
+    {
+      "id": "f7",
+      "question": "Quando usare Promise.allSettled() invece di Promise.all()?",
+      "answer": "Quando alcuni fallimenti sono accettabili e vuoi comunque i risultati delle operazioni riuscite. Promise.allSettled() aspetta che tutte le Promise si risolvano o rigettino e restituisce un array di oggetti con status 'fulfilled' o 'rejected'. Casi tipici: invio email in bulk, scraping multipli, notifiche push."
+    },
+    {
+      "id": "f8",
+      "question": "Perché un constructor non può essere async?",
+      "answer": "Per design del linguaggio, il constructor di una classe deve restituire l'istanza sincronamente. Marcandolo async restituirebbe una Promise<Instance>, rompendo il contratto di 'new'. La soluzione è il factory pattern: constructor privato più un metodo statico async che fa l'inizializzazione."
+    },
+    {
+      "id": "f9",
+      "question": "Come si implementa il factory pattern per risorse asincrone?",
+      "answer": "Si rende il constructor privato e si espone un metodo statico async (tipicamente create()) che fa l'inizializzazione asincrona e poi chiama new internamente. Esempio: Database.create(config) che internamente fa await connect() prima di new Database(connection)."
+    },
+    {
+      "id": "f10",
+      "question": "A cosa serve AbortController?",
+      "answer": "È il meccanismo nativo per cancellare operazioni asincrone in corso (fetch, stream, timer custom). Si passa il suo signal all'operazione; chiamando controller.abort() l'operazione viene interrotta lanciando un AbortError. Fondamentale per implementare timeout, cancellazione user-triggered o cleanup di richieste obsolete."
+    },
+    {
+      "id": "f11",
+      "question": "Perché è importante il blocco finally con clearTimeout quando si usa AbortController per un timeout?",
+      "answer": "Senza clearTimeout, se l'operazione principale (es. fetch) termina prima del timeout, il timer resta attivo in memoria fino alla sua scadenza. Il finally garantisce la pulizia sia in caso di successo che di errore, evitando memory leak e chiamate abort() inutili su operazioni già completate."
+    }
+  ],
+  "quiz": [
+    {
+      "id": "q1",
+      "question": "Hai un array di 1000 URL da scaricare. Qual è l'approccio corretto?",
+      "options": [
+        "Un ciclo for con await su ogni fetch, uno alla volta",
+        "Promise.all su tutti i 1000 fetch contemporaneamente",
+        "p-map o p-limit con una concurrency ragionevole (es. 5-10)",
+        "Promise.allSettled su tutti i 1000 fetch contemporaneamente"
+      ],
+      "correctIndex": 2
+    },
+    {
+      "id": "q2",
+      "question": "Cosa succede alle altre Promise quando una Promise.all() fallisce?",
+      "options": [
+        "Vengono cancellate automaticamente",
+        "Continuano a essere eseguite in background ma il risultato viene scartato",
+        "Vengono sospese in attesa di un retry",
+        "Vengono ritentate automaticamente"
+      ],
+      "correctIndex": 1
+    },
+    {
+      "id": "q3",
+      "question": "Quale tra questi è un uso tipico di Promise.allSettled()?",
+      "options": [
+        "Fetch di dati critici dove tutte le risposte sono necessarie",
+        "Query sequenziali che dipendono l'una dall'altra",
+        "Invio di N notifiche push dove alcuni fallimenti sono accettabili",
+        "Caricare la configurazione dell'applicazione all'avvio"
+      ],
+      "correctIndex": 2
+    },
+    {
+      "id": "q4",
+      "question": "Perché si usa un constructor privato nel factory pattern asincrono?",
+      "options": [
+        "Per migliorare le performance della classe",
+        "Per forzare l'uso del metodo factory ed evitare istanze non inizializzate correttamente",
+        "Perché TypeScript lo richiede quando ci sono metodi statici",
+        "Per ridurre il bundle size"
+      ],
+      "correctIndex": 1
+    },
+    {
+      "id": "q5",
+      "question": "Come si dichiara correttamente una funzione async in TypeScript che restituisce un array di Result?",
+      "options": [
+        "function process(): Result[] { ... }",
+        "async function process(): Result[] { ... }",
+        "async function process(): Promise<Result[]> { ... }",
+        "function process(): Promise<Result[]> async { ... }"
+      ],
+      "correctIndex": 2
+    },
+    {
+      "id": "q6",
+      "question": "Cosa identifica il blocco finally quando si usa AbortController con setTimeout?",
+      "options": [
+        "Il punto dove viene lanciato l'AbortError",
+        "Il punto garantito per fare clearTimeout ed evitare memory leak",
+        "Il punto dove la fetch viene ritentata in caso di errore",
+        "Un blocco opzionale che migliora solo la leggibilità"
+      ],
+      "correctIndex": 1
+    },
+    {
+      "id": "q7",
+      "question": "Qual è il vantaggio di async/await rispetto a .then() in termini di debugging?",
+      "options": [
+        "async/await elimina completamente gli errori runtime",
+        "Gli stack trace sono più leggibili e i breakpoint si comportano come nel codice sincrono",
+        "async/await esegue il codice più velocemente",
+        "Non c'è differenza, sono equivalenti al 100%"
+      ],
+      "correctIndex": 1
+    },
+    {
+      "id": "q8",
+      "question": "Quale affermazione su await all'interno di un ciclo for è corretta?",
+      "options": [
+        "Esegue tutte le iterazioni in parallelo automaticamente",
+        "Esegue le iterazioni in sequenza, una alla volta",
+        "Lancia un errore a runtime: await non può stare dentro un for",
+        "Esegue in parallelo solo se il body è una funzione pura"
+      ],
+      "correctIndex": 1
+    }
+  ]
+}

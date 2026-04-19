@@ -1,0 +1,87 @@
+{
+  "title": "Vue 3 Fondamentali",
+  "flashcards": [
+    {
+      "id": "f1",
+      "question": "Qual è la differenza tra ref() e reactive()?",
+      "answer": "ref() avvolge qualsiasi valore (primitivo o oggetto) e richiede .value per accedervi. reactive() funziona solo con oggetti e ne traccia le proprietà in profondità senza .value."
+    },
+    {
+      "id": "f2",
+      "question": "Quando usare computed() invece di un metodo?",
+      "answer": "computed() va usato per valori derivati dallo stato reattivo: è cachato e si ricalcola solo quando le dipendenze cambiano. Un metodo viene rieseguito ad ogni render."
+    },
+    {
+      "id": "f3",
+      "question": "Cosa fa defineProps() in <script setup>?",
+      "answer": "Dichiara le prop accettate dal componente in modo type-safe. In TypeScript si usa la sintassi generica: defineProps<{ nome: string }>(). Le prop sono read-only nel componente figlio."
+    },
+    {
+      "id": "f4",
+      "question": "A cosa serve provide/inject?",
+      "answer": "Permette a un componente antenato di passare dati a qualsiasi discendente senza prop drilling. Utile per contesti condivisi (tema, autenticazione) su alberi profondi."
+    },
+    {
+      "id": "f5",
+      "question": "Qual è l'ordine corretto delle sezioni in un SFC Vue 3?",
+      "answer": "<script setup> → <template> → <style scoped>. L'ordine è una convenzione ma migliora la leggibilità e il supporto dei tool (Volar, ESLint)."
+    }
+  ],
+  "quiz": [
+    {
+      "id": "q1",
+      "question": "Quale primitiva reattiva è consigliata per valori primitivi (stringa, numero, booleano)?",
+      "options": [
+        "reactive()",
+        "shallowRef()",
+        "shallowReactive()",
+        "markRaw()"
+      ],
+      "correctIndex": 1
+    },
+    {
+      "id": "q2",
+      "question": "Cosa succede se si destruttura direttamente un oggetto reactive()?",
+      "options": [
+        "Funziona normalmente, la reattività si mantiene",
+        "Vue lancia un errore a runtime",
+        "Le proprietà destrutturate perdono la reattività",
+        "Le proprietà diventano computed automaticamente"
+      ],
+      "correctIndex": 2
+    },
+    {
+      "id": "q3",
+      "question": "Quale hook va usato per accedere ai template ref in Vue 3.5+?",
+      "options": [
+        "ref()",
+        "useTemplateRef()",
+        "onMounted() con getElementById",
+        "reactive()"
+      ],
+      "correctIndex": 1
+    },
+    {
+      "id": "q4",
+      "question": "Quando è preferibile v-show rispetto a v-if?",
+      "options": [
+        "Quando l'elemento è raramente visibile",
+        "Quando la condizione non cambierà mai",
+        "Quando l'elemento viene mostrato e nascosto frequentemente",
+        "Quando il componente ha molti figli"
+      ],
+      "correctIndex": 2
+    },
+    {
+      "id": "q5",
+      "question": "Come si emette un evento tipizzato da un componente figlio in Vue 3 con TypeScript?",
+      "options": [
+        "this.$emit('evento', payload)",
+        "const emit = defineEmits(['evento']); emit('evento', payload)",
+        "const emit = defineEmits<{ evento: [payload: string] }>(); emit('evento', payload)",
+        "emit('evento') senza dichiarazioni"
+      ],
+      "correctIndex": 2
+    }
+  ]
+}

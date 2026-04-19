@@ -1,6 +1,7 @@
 # Study Deck
 
 ## Problem Statement
+
 Come creare un tool di studio personale — accessibile da mobile, senza backend — che presenti flashcard e quiz da file JSON con tracking degli errori?
 
 ## Recommended Direction
@@ -29,6 +30,7 @@ I deck si resettano ad ogni riapertura dell'app (no persistenza IndexedDB) — s
 ```
 
 ## Key Assumptions
+
 - `localStorage` è sufficiente per il tracking — non serve sync tra dispositivi
 - FileReader API funziona da mobile Safari/Chrome
 - Un deck per file è granularità giusta
@@ -36,6 +38,7 @@ I deck si resettano ad ogni riapertura dell'app (no persistenza IndexedDB) — s
 ## MVP Scope
 
 **In:**
+
 - Schermata home: lista deck caricati + bottone upload JSON
 - Modalità flashcard: ordine casuale, flip, "segna come corretto" ✓
 - Modalità quiz: 4 opzioni, feedback immediato, ordine casuale
@@ -43,6 +46,7 @@ I deck si resettano ad ogni riapertura dell'app (no persistenza IndexedDB) — s
 - Persistenza progresso via localStorage (reset al reload dell'app)
 
 **Not Doing:**
+
 - Spatial repetition — future
 - Editor JSON in-app
 - Account / sync cloud

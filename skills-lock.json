@@ -1,6 +1,11 @@
 {
   "version": 1,
   "skills": {
+    "documentation-and-adrs": {
+      "source": "alessandrocurcu/skills",
+      "sourceType": "github",
+      "computedHash": "c9477624b0464b87b3f72335dffbf800066498dbd3a31f547c7ae0052ba172d6"
+    },
     "idea-refine": {
       "source": "alessandrocurcu/skills",
       "sourceType": "github",
