@@ -60,6 +60,8 @@ async function handleFiles(event: Event) {
         type="file"
         accept=".json"
         multiple
+        aria-hidden="true"
+        tabindex="-1"
         class="file-input"
         @change="handleFiles"
       >

@@ -88,8 +88,8 @@ src/types.ts  (Deck, Flashcard, QuizQuestion)
 
 ### Checkpoint: Foundation
 
-- [ ] `pnpm build` pulita
-- [ ] App apre su `localhost:5173` con sfondo dark
+- [x] `pnpm build` pulita
+- [x] App apre su `localhost:5173` con sfondo dark
 
 ---
 
@@ -102,8 +102,8 @@ src/types.ts  (Deck, Flashcard, QuizQuestion)
 **Acceptance criteria:**
 
 - [x] Click su "Carica JSON" apre il file picker (anche da mobile)
-- [ ] Si possono selezionare più file in una volta
-- [ ] Ogni file valido aggiunge una voce alla lista
+- [x] Si possono selezionare più file in una volta
+- [x] Ogni file valido aggiunge una voce alla lista
 - [x] File JSON malformato mostra un messaggio di errore inline (non crash)
 - [x] Bottoni "Flashcard" e "Quiz" navigano alle route corrette
 - [x] Se nessun deck caricato, mostra empty state ("Carica un file JSON per iniziare")
@@ -136,15 +136,15 @@ src/types.ts  (Deck, Flashcard, QuizQuestion)
 - [x] Click sulla carta (o su un bottone "Mostra risposta") rivela la risposta
 - [x] "Segna come corretto" salva `progress:{title}:{id} = "correct"` in localStorage
 - [x] Carte già corrette mostrano un indicatore visivo (es. bordo verde)
-- [] Ordine casuale ad ogni sessione
+- [x] Ordine casuale ad ogni sessione
 - [x] Breadcrumb "3 / 12" aggiornato
-- [ ] Navigazione a indice inesistente → redirect `/`
+- [x] Navigazione a indice inesistente → redirect `/`
 
 **Verification:**
 
-- [ ] Flip funziona su mobile (touch)
+- [x] Flip funziona su mobile (touch)
 - [x] localStorage contiene la chiave dopo aver segnato corretto
-- [ ] Ricaricare la pagina → progresso corretto letto da localStorage
+- [x] Ricaricare la pagina → progresso corretto letto da localStorage
 
 **Dependencies:** Task 1, Task 2, Task 3
 
@@ -169,7 +169,7 @@ src/types.ts  (Deck, Flashcard, QuizQuestion)
 - [x] Risposta sbagliata evidenziata in rosso + mostra quella corretta
 - [x] Risposta corretta salva in localStorage
 - [x] Ordine domande casuale, ordine opzioni casuale
-- [ ] Navigazione a indice inesistente → redirect `/`
+- [x] Navigazione a indice inesistente → redirect `/`
 
 **Verification:**
 
@@ -190,9 +190,9 @@ src/types.ts  (Deck, Flashcard, QuizQuestion)
 
 ### Checkpoint: Core Features
 
-- [ ] Upload JSON → selezione deck → flashcard funzionanti end-to-end
-- [ ] Upload JSON → selezione deck → quiz funzionante end-to-end
-- [ ] Progresso persistito in localStorage verificato con DevTools
+- [x] Upload JSON → selezione deck → flashcard funzionanti end-to-end
+- [x] Upload JSON → selezione deck → quiz funzionante end-to-end
+- [x] Progresso persistito in localStorage verificato con DevTools
 
 ---
 
@@ -237,8 +237,8 @@ src/types.ts  (Deck, Flashcard, QuizQuestion)
 
 **Verification:**
 
-- [ ] `pnpm preview` + navigazione diretta a `/deck/0/flashcards` non dà 404
-- [ ] `dist/example-deck.json` presente dopo build
+- [x] `pnpm preview` + navigazione diretta a `/deck/0/flashcards` non dà 404
+- [x] `dist/example-deck.json` presente dopo build
 
 **Dependencies:** Task 5
 
@@ -253,9 +253,9 @@ src/types.ts  (Deck, Flashcard, QuizQuestion)
 
 ### Checkpoint: Complete
 
-- [ ] Flusso completo testato da mobile (upload → flashcard → quiz → ripassa errori)
-- [ ] `pnpm build` pulita, nessun errore TypeScript
-- [ ] Pronto per deploy su Netlify
+- [x] Flusso completo testato da mobile (upload → flashcard → quiz → ripassa errori)
+- [x] `pnpm build` pulita, nessun errore TypeScript
+- [x] Pronto per deploy su Netlify
 
 ---
 

@@ -76,7 +76,8 @@ const router = useRouter()
   color: var(--color-accent);
   background: transparent;
   border-radius: var(--radius-sm);
-  padding: 0.375rem 0.75rem;
+  padding: 0.5rem 0.75rem;
+  min-height: 2.75rem;
   font-size: 0.875rem;
   font-weight: 500;
   transition:

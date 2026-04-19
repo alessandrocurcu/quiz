@@ -13,7 +13,12 @@ defineEmits<{ flip: [] }>()
   <div
     class="card-wrapper"
     :class="{ 'card-wrapper--correct': isCorrect }"
+    role="button"
+    tabindex="0"
+    :aria-label="isFlipped ? 'Mostra domanda' : 'Mostra risposta'"
     @click="$emit('flip')"
+    @keydown.enter.prevent="$emit('flip')"
+    @keydown.space.prevent="$emit('flip')"
   >
     <div class="card-inner" :class="{ 'card-inner--flipped': isFlipped }">
       <div class="card-face card-front">
@@ -23,13 +28,13 @@ defineEmits<{ flip: [] }>()
         <p class="card-question">
           {{ question }}
         </p>
-        <span class="card-hint">↺ Tocca per rivelare la risposta</span>
+        <span class="card-hint">↺ Clicca o tocca per rivelare la risposta</span>
       </div>
       <div class="card-face card-back">
         <p class="card-answer">
           {{ answer }}
         </p>
-        <span class="card-hint">↺ Tocca per vedere la domanda</span>
+        <span class="card-hint">↺ Clicca o tocca per vedere la domanda</span>
       </div>
     </div>
   </div>
@@ -41,6 +46,11 @@ defineEmits<{ flip: [] }>()
   cursor: pointer;
   border-radius: var(--radius);
   transition: box-shadow 0.2s;
+  outline: none;
+}
+
+.card-wrapper:focus-visible {
+  box-shadow: 0 0 0 2px var(--color-accent);
 }
 
 .card-wrapper--correct {

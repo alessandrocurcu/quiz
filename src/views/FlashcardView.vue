@@ -113,7 +113,8 @@ function handleMarkCorrect() {
   border: none;
   color: var(--color-text-muted);
   font-size: 0.9rem;
-  padding: 0.25rem 0;
+  padding: 0.5rem 0.5rem;
+  min-height: 2.75rem;
   transition: color 0.15s;
 }
 
