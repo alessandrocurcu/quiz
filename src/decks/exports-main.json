@@ -1,0 +1,187 @@
+{
+  "title": "Il campo exports in un mondo solo-ESM",
+  "flashcards": [
+    {
+      "id": "f1",
+      "question": "Qual è il modello mentale corretto per il campo exports in package.json?",
+      "answer": "exports è il contratto pubblico del pacchetto: una mappa che dichiara a Node.js quali path il mondo esterno può importare e a quali file reali sul disco corrispondono. Tutto ciò che non è elencato diventa automaticamente privato e invisibile, come se non esistesse per chi usa il pacchetto."
+    },
+    {
+      "id": "f2",
+      "question": "Qual è la differenza concettuale tra main e exports?",
+      "answer": "Con main il pacchetto era una cartella aperta: qualunque file interno era importabile liberamente dai consumer. Con exports il pacchetto diventa una scatola chiusa con porte definite esplicitamente: solo i path elencati sono accessibili, tutto il resto è privato. Si passa da una convenzione basata sulla fiducia a un vincolo tecnico imposto da Node.js."
+    },
+    {
+      "id": "f3",
+      "question": "A cosa serve \"type\": \"module\" nel package.json?",
+      "answer": "Dichiara a Node.js che tutti i file .js del pacchetto vanno interpretati come ESM invece che come CommonJS. Permette di usare import/export nei sorgenti senza dover rinominare i file in .mjs. In un progetto solo-ESM è praticamente obbligatorio."
+    },
+    {
+      "id": "f4",
+      "question": "Qual è la forma minima di exports per un pacchetto con un singolo entry point?",
+      "answer": "La sintassi stringa diretta: \"exports\": \"./dist/index.js\". È sufficiente quando non si vogliono dichiarare tipi TypeScript né entry point multipli. Con questa configurazione import x from 'my-package' risolve al file indicato, mentre qualsiasi altro subpath viene rifiutato da Node.js con errore."
+    },
+    {
+      "id": "f5",
+      "question": "Perché, quando si aggiungono i tipi TypeScript, la forma stringa non basta più?",
+      "answer": "Perché servono più informazioni per lo stesso entry point: il file .js runtime e il file .d.ts per il type checker. Occorre passare alla forma oggetto con condizioni, dove ogni entry point (es. \".\") ha un oggetto con chiavi come \"types\" e \"default\" che puntano ai rispettivi file."
+    },
+    {
+      "id": "f6",
+      "question": "Cosa rappresenta la chiave \".\" dentro l'oggetto exports?",
+      "answer": "È l'import root del pacchetto, cioè quello che il consumer scrive come import x from 'my-package' senza subpath. È la radice della public API. Tutti gli altri subpath si dichiarano con chiavi tipo \"./utils\", \"./errors\" e così via."
+    },
+    {
+      "id": "f7",
+      "question": "Cos'è la condizione \"default\" in exports?",
+      "answer": "È la condizione catch-all: si attiva quando nessun'altra condizione più specifica ha fatto match. In un setup solo-ESM, non distinguendo tra import e require, default copre tutti i casi di risoluzione runtime. Va sempre messa dopo le condizioni più specifiche come types."
+    },
+    {
+      "id": "f8",
+      "question": "Perché l'ordine delle chiavi dentro exports è critico?",
+      "answer": "Node.js e TypeScript valutano le condizioni dall'alto verso il basso e prendono la prima che matcha. Se \"default\" viene messo prima di \"types\", TypeScript non troverà mai la dichiarazione dei tipi perché default intercetta tutto. La regola: le condizioni specifiche (types) vanno sempre prima di quelle generiche (default). È uno dei bug silenziosi più comuni nella configurazione di exports."
+    },
+    {
+      "id": "f9",
+      "question": "Cosa sono i subpath exports e perché sono così potenti?",
+      "answer": "Sono entry point pubblici aggiuntivi oltre la root, dichiarati con chiavi tipo \"./utils\". Permettono ai consumer di scrivere import { bar } from 'my-package/utils'. La cosa potente è il disaccoppiamento: il path pubblico (./utils) e il path reale sul disco (./dist/utils.js) sono indipendenti, quindi puoi ristrutturare la cartella dist senza che i consumer se ne accorgano."
+    },
+    {
+      "id": "f10",
+      "question": "Perché è una buona abitudine includere \"./package.json\": \"./package.json\" in exports?",
+      "answer": "Con exports attivo anche il package.json del pacchetto diventa privato per default. Alcuni tool (bundler, linter, analizzatori statici) hanno bisogno di leggerlo per funzionare. Esporlo esplicitamente è un'idiom difensiva che previene problemi di integrazione con l'ecosistema tooling."
+    },
+    {
+      "id": "f11",
+      "question": "Cosa succede se un consumer prova a importare un file non dichiarato in exports?",
+      "answer": "Node.js rifiuta l'import a runtime con un errore esplicito tipo \"Package subpath './dist/internal/secret.js' is not defined by exports\". Il file può esistere fisicamente nel tarball pubblicato su npm, ma è irraggiungibile dall'esterno. L'encapsulation non è una convenzione ma un vincolo tecnico imposto dal runtime."
+    },
+    {
+      "id": "f12",
+      "question": "Come si progetta exports come public API contract?",
+      "answer": "Si elencano SOLO le entrate che si vogliono esporre (es. \".\" per il client principale, \"./errors\" per gli error type, \"./package.json\" per i tool). I file di implementazione interna (retry logic, helper, util privati) restano nella cartella pubblicata ma non vengono mai elencati in exports. Il loro uso è limitato al codice interno del pacchetto: sono raggiungibili solo tramite le porte pubbliche dichiarate."
+    },
+    {
+      "id": "f13",
+      "question": "Il campo main serve ancora in un pacchetto solo-ESM moderno?",
+      "answer": "Tecnicamente no: con Node.js >=16 e target solo-ESM, exports sostituisce completamente main. L'unica ragione residua per tenerlo è la compatibilità con tool antichi o malconfigurati che ancora non leggono exports (alcuni bundler vecchi, certi analizzatori). Se lo si mantiene, deve puntare allo stesso file di exports[\".\"][\"default\"] per evitare contraddizioni."
+    },
+    {
+      "id": "f14",
+      "question": "Qual è la mentalità corretta per exports: whitelist o blacklist?",
+      "answer": "exports è una whitelist: dichiari esplicitamente cosa è pubblico, e tutto il resto è automaticamente privato. Non si può \"nascondere\" un singolo file; si espongono solo quelli voluti. Questo è l'opposto del vecchio approccio basato su main, dove implicitamente tutto era pubblico a meno di convenzioni informali."
+    }
+  ],
+  "quiz": [
+    {
+      "id": "q1",
+      "question": "Cosa dichiara esattamente il campo exports in package.json?",
+      "options": [
+        "La lista dei file che verranno inclusi nel tarball pubblicato su npm",
+        "La mappa tra path pubblici e file reali, che definisce il contratto pubblico del pacchetto",
+        "Un alias per la chiave main, conservato per retrocompatibilità",
+        "Le dipendenze opzionali del pacchetto"
+      ],
+      "correctIndex": 1
+    },
+    {
+      "id": "q2",
+      "question": "Cosa succede se scrivi \"type\": \"module\" nel tuo package.json?",
+      "options": [
+        "I file .js vengono tutti compilati automaticamente in TypeScript",
+        "I file .js vengono trattati come ESM, permettendo import/export senza rinominare in .mjs",
+        "Il pacchetto diventa compatibile con il browser",
+        "Node.js abilita il modo strict per tutti i file del pacchetto"
+      ],
+      "correctIndex": 1
+    },
+    {
+      "id": "q3",
+      "question": "Dato questo exports, cosa importa il consumer con import x from 'my-package'?\n\n{\n  \"exports\": {\n    \".\": {\n      \"types\": \"./dist/index.d.ts\",\n      \"default\": \"./dist/index.js\"\n    }\n  }\n}",
+      "options": [
+        "./dist/index.d.ts",
+        "./dist/index.js a runtime, con i tipi letti da ./dist/index.d.ts dal type checker",
+        "Sia il .js che il .d.ts concatenati",
+        "Solo il package.json"
+      ],
+      "correctIndex": 1
+    },
+    {
+      "id": "q4",
+      "question": "Perché NON va bene questo ordine di condizioni?\n\n{\n  \".\": {\n    \"default\": \"./dist/index.js\",\n    \"types\": \"./dist/index.d.ts\"\n  }\n}",
+      "options": [
+        "Non c'è nessun problema, l'ordine è irrilevante",
+        "default intercetta la risoluzione prima che types venga valutata, quindi TypeScript non trova mai le dichiarazioni",
+        "types non è una condizione valida in Node.js",
+        "Manca la condizione import obbligatoria"
+      ],
+      "correctIndex": 1
+    },
+    {
+      "id": "q5",
+      "question": "Un consumer prova a scrivere import x from 'my-package/dist/internal/secret.js' ma quel path non è dichiarato in exports. Cosa succede?",
+      "options": [
+        "L'import funziona perché il file esiste fisicamente nel tarball",
+        "Node.js solleva un errore: Package subpath is not defined by exports",
+        "L'import funziona ma emette un warning",
+        "Il file viene automaticamente rinominato dal bundler"
+      ],
+      "correctIndex": 1
+    },
+    {
+      "id": "q6",
+      "question": "Vuoi permettere import { Client } from 'my-http' e import { HttpError } from 'my-http/errors', ma bloccare import di dist/internal/retry-logic.js anche se il file è nel tarball. Come configuri exports?",
+      "options": [
+        "Elenchi tutti i file tranne retry-logic.js in exports",
+        "Elenchi solo \".\" e \"./errors\" (più opzionalmente \"./package.json\") in exports",
+        "Aggiungi retry-logic.js alla chiave files del package.json con valore false",
+        "Usi il flag privateFiles in package.json"
+      ],
+      "correctIndex": 1
+    },
+    {
+      "id": "q7",
+      "question": "Qual è il vantaggio del disaccoppiamento tra path pubblico e path su disco nei subpath exports?",
+      "options": [
+        "Migliora le performance di risoluzione dei moduli a runtime",
+        "Permette di ristrutturare la cartella dist senza rompere i consumer, finché exports viene aggiornato di conseguenza",
+        "Riduce la dimensione del bundle finale",
+        "Abilita il tree shaking automatico"
+      ],
+      "correctIndex": 1
+    },
+    {
+      "id": "q8",
+      "question": "Perché esporre esplicitamente \"./package.json\": \"./package.json\" in exports è considerato buona pratica?",
+      "options": [
+        "Perché Node.js lo richiede per tutti i pacchetti ESM",
+        "Perché con exports attivo il package.json diventa privato per default, ma bundler e tool spesso hanno bisogno di leggerlo",
+        "Per abilitare il caching del manifest",
+        "Perché migliora la velocità di npm install"
+      ],
+      "correctIndex": 1
+    },
+    {
+      "id": "q9",
+      "question": "In un pacchetto solo-ESM con Node.js >=16, il campo main è:",
+      "options": [
+        "Obbligatorio, exports non può sostituirlo completamente",
+        "Tecnicamente superfluo perché exports lo sostituisce; si mantiene solo per compatibilità con tool antichi",
+        "Prioritario rispetto a exports se entrambi sono presenti",
+        "Deprecato e genera un warning al runtime"
+      ],
+      "correctIndex": 1
+    },
+    {
+      "id": "q10",
+      "question": "Qual è la mentalità corretta per progettare exports?",
+      "options": [
+        "Blacklist: elenco i file che NON voglio esporre",
+        "Whitelist: elenco solo i path pubblici, tutto il resto è automaticamente privato",
+        "Copia 1:1 della struttura della cartella dist",
+        "Riflesso della struttura src/ del codice sorgente"
+      ],
+      "correctIndex": 1
+    }
+  ]
+}

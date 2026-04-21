@@ -1,0 +1,203 @@
+{
+  "title": "Reading and Writing Files in Node.js",
+  "flashcards": [
+    {
+      "id": "f1",
+      "question": "Qual è il modulo moderno e consigliato per le operazioni su file in Node.js?",
+      "answer": "node:fs/promises, che espone le API dei file in versione promise-based. Si integra nativamente con async/await, evita il callback hell e i metodi sincroni bloccanti. Funzioni principali: readFile, writeFile, open, mkdir, readdir, stat."
+    },
+    {
+      "id": "f2",
+      "question": "Cosa restituisce readFile() a seconda del parametro encoding?",
+      "answer": "Se si passa un encoding come 'utf8', restituisce una string. Se non si passa nessun encoding, restituisce un Buffer (sequenza di byte raw). Questa distinzione è fondamentale: per testo e JSON si usa 'utf8', per dati binari (immagini, audio, video) si omette l'encoding per lavorare direttamente sul Buffer."
+    },
+    {
+      "id": "f3",
+      "question": "Quali sono i principali error code da gestire nelle operazioni su file?",
+      "answer": "ENOENT (file non esiste), EACCES (permessi negati), EISDIR (tentativo di leggere una directory come file), EMFILE (troppi file aperti), ENOSPC (disco pieno), EROFS (filesystem read-only). Il codice è in error.code e permette di gestire scenari specifici con messaggi significativi."
+    },
+    {
+      "id": "f4",
+      "question": "Cos'è un Buffer in Node.js e quando si usa?",
+      "answer": "Un Buffer è una sequenza di byte a dimensione fissa, ottimizzata per dati binari. Si usa per gestire contenuto non testuale (immagini, audio, protocolli binari). Si crea con Buffer.alloc(size) e si manipola con metodi come writeUInt32LE, writeInt16LE, readUInt32LE per scrivere/leggere tipi specifici in posizioni precise."
+    },
+    {
+      "id": "f5",
+      "question": "Come si leggono più file in parallelo minimizzando il tempo totale?",
+      "answer": "Si crea un array di Promise con array.map(file => readFile(file, 'utf8')) SENZA await, poi si aspetta tutto con Promise.all(promises). In questo modo le letture partono concorrentemente e il tempo totale è quello della più lenta, non la somma. Si può concatenare .then(JSON.parse) per leggere e parsare in un colpo solo."
+    },
+    {
+      "id": "f6",
+      "question": "Perché le Promise di Node.js sono 'eager' e cosa implica?",
+      "answer": "Appena crei una Promise (es. chiamando writeFile), l'operazione sottostante inizia immediatamente. L'await non fa partire nulla, determina solo quando il tuo codice aspetta il completamento. Per questo è sufficiente creare l'array di Promise prima e fare await Promise.all() dopo per avere vera concorrenza."
+    },
+    {
+      "id": "f7",
+      "question": "Qual è il modo corretto di fare path relativi allo script corrente nei moduli ESM?",
+      "answer": "Si usa import.meta.dirname combinato con path.join(), es. join(import.meta.dirname, 'config.json'). È l'equivalente moderno di __dirname (che esiste solo in CommonJS). Evita bug in cui lo script funziona se lanciato dalla sua directory ma fallisce da altre posizioni."
+    },
+    {
+      "id": "f8",
+      "question": "Quando è accettabile usare readFileSync/writeFileSync?",
+      "answer": "Solo in CLI tool, script one-shot, build process e applicazioni non concorrenti. MAI in web server (Express, Fastify) o applicazioni real-time: bloccherebbero l'event loop e quindi tutte le altre richieste. In produzione concorrente la regola è: sempre async, per consistenza e per non rischiare blocchi accidentali."
+    },
+    {
+      "id": "f9",
+      "question": "Perché readFile diventa problematico con file di grandi dimensioni?",
+      "answer": "readFile carica l'intero file in memoria in un'unica operazione. Con file da 2GB il processo tenta di allocare 2GB di RAM, rischiando out-of-memory, degrado di performance e crash. Anche se il limite teorico dei Buffer in Node è molto alto (~9 PB), caricare file enormi in memoria resta una pessima idea: meglio processarli in chunk con file handle o stream."
+    },
+    {
+      "id": "f10",
+      "question": "Cos'è un file handle e qual è il suo ciclo di vita?",
+      "answer": "È un riferimento di basso livello a un file aperto, ottenuto con open(path, flag) dove flag è 'r' per lettura o 'w' per scrittura. Permette read/write incrementali tracciando manualmente la posizione. DEVE essere chiuso con fileHandle.close(), tipicamente in un blocco finally, per evitare resource leak e esaurimento dei file descriptor disponibili."
+    },
+    {
+      "id": "f11",
+      "question": "Quali sono i vantaggi degli stream rispetto ai file handle?",
+      "answer": "Memory efficiency (processing piece-by-piece con buffer interno), composabilità (chainabili in pipeline), backpressure automatica, API event-driven e molto meno codice manuale. Non devi tracciare posizioni, gestire buffer manualmente o chiudere risorse esplicitamente (se usi pipeline). Ergonomia di molto superiore al file handle per la maggior parte dei casi."
+    },
+    {
+      "id": "f12",
+      "question": "Cos'è il backpressure in uno stream e come si gestisce manualmente?",
+      "answer": "Si verifica quando produci dati più velocemente di quanto lo stream di destinazione riesca a scriverli. writeStream.write() ritorna false quando il buffer interno è pieno; a quel punto devi aspettare l'evento 'drain' prima di continuare a scrivere (await once(writeStream, 'drain')). Ignorarlo porta a crescita incontrollata di memoria."
+    },
+    {
+      "id": "f13",
+      "question": "Cosa fa pipeline() e perché è preferibile a gestire manualmente gli stream?",
+      "answer": "pipeline() (da node:stream/promises) collega più stream in una catena gestendo automaticamente flusso dei dati, backpressure, propagazione errori e cleanup delle risorse. Supporta anche iterables, async iterables e generator functions come sorgente. Rende il codice dichiarativo: descrivi il 'cosa', non il 'come'."
+    },
+    {
+      "id": "f14",
+      "question": "Cos'è objectMode in un Readable stream custom?",
+      "answer": "È un'opzione che fa trattare a ogni push() una unità logica (oggetto o stringa) come un singolo chunk, invece che concatenare i byte in un buffer. Utile quando generi elementi discreti (record, oggetti, righe) invece di flussi binari. Cambia anche l'unità del highWaterMark (numero di oggetti invece di byte)."
+    },
+    {
+      "id": "f15",
+      "question": "Quale soglia indica quando preferire gli stream a fs/promises?",
+      "answer": "Come regola empirica: file sopra ~100MB vanno processati a stream. Sotto quella soglia readFile/writeFile vanno benissimo per semplicità. Altri casi che richiedono stream: dati real-time (log live), ambienti memory-limited (cloud function, container), dimensione ignota a priori (upload utenti), pipeline di trasformazione multi-step."
+    }
+  ],
+  "quiz": [
+    {
+      "id": "q1",
+      "question": "Cosa restituisce readFile('image.png') senza specificare l'encoding?",
+      "options": [
+        "Una stringa in codifica utf8",
+        "Un Buffer contenente i byte raw del file",
+        "Un ArrayBuffer",
+        "Un errore perché l'encoding è obbligatorio"
+      ],
+      "correctIndex": 1
+    },
+    {
+      "id": "q2",
+      "question": "Hai 4 file di config da caricare. Quale approccio è corretto per massimizzare le performance?",
+      "options": [
+        "4 await sequenziali, uno per file",
+        "files.map(f => readFile(f)) seguito da await Promise.all(promises)",
+        "readFileSync in un ciclo for",
+        "Un singolo readFile passando l'array di path"
+      ],
+      "correctIndex": 1
+    },
+    {
+      "id": "q3",
+      "question": "Quale error code indica che il file non esiste?",
+      "options": [
+        "EACCES",
+        "EISDIR",
+        "ENOENT",
+        "ENOSPC"
+      ],
+      "correctIndex": 2
+    },
+    {
+      "id": "q4",
+      "question": "Dove NON si devono MAI usare readFileSync/writeFileSync?",
+      "options": [
+        "In uno script CLI one-shot",
+        "In un web server concorrente (Express, Fastify)",
+        "In un build script",
+        "In un tool di migrazione eseguito una tantum"
+      ],
+      "correctIndex": 1
+    },
+    {
+      "id": "q5",
+      "question": "Come si ottiene il path della directory corrente in un modulo ESM moderno?",
+      "options": [
+        "__dirname",
+        "process.cwd()",
+        "import.meta.dirname",
+        "path.resolve('.')"
+      ],
+      "correctIndex": 2
+    },
+    {
+      "id": "q6",
+      "question": "Stai leggendo un file da 5GB. Quale approccio è più appropriato?",
+      "options": [
+        "await readFile('file.dat') con successiva manipolazione in memoria",
+        "readFileSync per massima performance",
+        "createReadStream con handling dell'evento 'data', oppure pipeline()",
+        "Aumentare il flag --max-old-space-size e usare readFile"
+      ],
+      "correctIndex": 2
+    },
+    {
+      "id": "q7",
+      "question": "Perché serve il blocco finally quando si usa await open() per un file handle?",
+      "options": [
+        "Per convenzione stilistica, non è funzionalmente necessario",
+        "Per garantire fileHandle.close() anche in caso di errore, evitando leak di file descriptor",
+        "Per riaprire il file se la lettura fallisce",
+        "Per loggare il successo dell'operazione"
+      ],
+      "correctIndex": 1
+    },
+    {
+      "id": "q8",
+      "question": "writeStream.write(buffer) ritorna false. Cosa significa e cosa devi fare?",
+      "options": [
+        "La scrittura è fallita, devi ripeterla subito",
+        "Il buffer interno è pieno (backpressure); aspettare l'evento 'drain' prima di proseguire",
+        "Lo stream è chiuso, devi ricrearlo",
+        "Nulla di particolare, il false è solo informativo e si può ignorare"
+      ],
+      "correctIndex": 1
+    },
+    {
+      "id": "q9",
+      "question": "Quale tra questi è il vantaggio principale di pipeline() rispetto a collegare manualmente stream con .pipe()?",
+      "options": [
+        "È notevolmente più veloce a runtime",
+        "Gestisce automaticamente backpressure, errori e cleanup delle risorse",
+        "Permette di usare la sintassi sincrona",
+        "Supporta file superiori a 9PB"
+      ],
+      "correctIndex": 1
+    },
+    {
+      "id": "q10",
+      "question": "Quando è corretto usare Promise.allSettled() invece di Promise.all() per operazioni su file?",
+      "options": [
+        "Sempre, è strettamente superiore a Promise.all()",
+        "Quando tutte le operazioni devono riuscire perché l'app non può continuare altrimenti",
+        "Quando i fallimenti parziali sono accettabili (es. upload opzionali, config non critiche)",
+        "Solo con i file binari"
+      ],
+      "correctIndex": 2
+    },
+    {
+      "id": "q11",
+      "question": "Cosa implica il fatto che le Promise in JavaScript sono 'eager'?",
+      "options": [
+        "L'operazione parte solo quando chiami await sulla Promise",
+        "L'operazione parte appena la Promise viene creata; await determina solo quando aspettarne il risultato",
+        "Le Promise vengono eseguite in un worker thread separato",
+        "Le Promise sono automaticamente cached"
+      ],
+      "correctIndex": 1
+    }
+  ]
+}
