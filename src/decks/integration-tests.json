@@ -1,0 +1,234 @@
+{
+  "title": "Integration Testing, Test Doubles e Boundary Tests",
+  "flashcards": [
+    {
+      "id": "f1",
+      "question": "Qual è la differenza fondamentale tra unit testing e integration testing?",
+      "answer": "L'unit test verifica che una singola funzione, presa in isolamento, si comporti correttamente. L'integration test verifica che le funzioni, messe insieme, si parlino nel modo giusto. Puoi avere frontend e backend perfetti a livello di unit test ma l'app si rompe se il frontend chiama /api/users/:id mentre il backend espone /api/user/:id. Nessun unit test avrebbe intercettato questo bug."
+    },
+    {
+      "id": "f2",
+      "question": "Perché scrivere unit test per un file come server.js di Express è artificioso?",
+      "answer": "Perché il cablaggio applicativo (registrazione route, middleware, config DB, error handling HTTP) è per sua natura il punto in cui le cose si connettono tra loro. Testarlo con unit test richiederebbe di mockare Express stesso, un lavoro enorme per un valore minimo. Questi componenti vanno verificati con integration test che controllano che la route sia registrata, il middleware risponda e la risposta abbia la forma attesa."
+    },
+    {
+      "id": "f3",
+      "question": "Qual è il pattern standard di setup per integration test che coinvolgono un database?",
+      "answer": "Prima della suite (beforeAll) si crea o avvia un database di test, spesso separato o in-memory come SQLite. Prima di ogni test (beforeEach) si popolano i dati noti (seed). Dopo ogni test (afterEach) si fa rollback o si svuotano le tabelle per garantire l'isolamento. Con Jest/Vitest e ORM come Prisma o Drizzle questo è il workflow canonico."
+    },
+    {
+      "id": "f4",
+      "question": "Perché l'isolamento tra integration test è critico?",
+      "answer": "Un test che lascia dati sporchi nel database può far fallire il test successivo in modo non deterministico. È il tipo di bug più difficile da diagnosticare: il test fallisce solo quando viene eseguito dopo un altro specifico, rendendo il problema apparentemente casuale. Per questo afterEach deve sempre ripulire lo stato condiviso."
+    },
+    {
+      "id": "f5",
+      "question": "Perché in progetti maturi si separano le suite di unit e integration test?",
+      "answer": "Gli integration test sono strutturalmente più lenti perché fanno I/O reale (DB, rete, filesystem). Gli unit test girano ad ogni salvataggio, gli integration test nella CI o prima del deploy. Non separarli porta a una suite locale da 3 minuti ad ogni run, il che rompe il flusso di lavoro e scoraggia l'esecuzione frequente dei test."
+    },
+    {
+      "id": "f6",
+      "question": "Perché gli integration test rappresentano un cambio di prospettiva rispetto agli unit test?",
+      "answer": "Gli unit test guardano il codice dall'interno (questa funzione riceve X e restituisce Y). Gli integration test guardano il sistema dall'esterno, dal punto di vista dello stakeholder: 'quando il frontend chiede i dati di un utente, l'API risponde con la struttura e lo status code corretti'. Traducono requisiti di sistema in criteri di accettazione eseguibili."
+    },
+    {
+      "id": "f7",
+      "question": "Come funzionano i due cicli annidati nel TDD con integration test?",
+      "answer": "Ciclo esterno: scrivi un integration test che fallisce (red esterno), ad esempio GET /api/companies che deve restituire un array con una certa shape. Ciclo interno: non scrivi subito il codice per passarlo; costruisci i pezzi con TDD classico unit-by-unit (red-green-refactor ripetuto). Quando tutti i pezzi sono al loro posto l'integration test diventa green. Solo allora scrivi il prossimo integration test."
+    },
+    {
+      "id": "f8",
+      "question": "In che modo la struttura a cicli annidati previene l'over-engineering?",
+      "answer": "L'integration test esterno definisce il confine esatto entro cui lavorare: ogni riga di codice che scrivi nel ciclo interno è giustificata da quel test. Se ti accorgi di voler aggiungere una feature non coperta da nessun integration test attivo, quello è il segnale che devi prima scrivere un nuovo integration test che la richieda. I test guidano lo sviluppo invece di seguirlo."
+    },
+    {
+      "id": "f9",
+      "question": "Qual è la differenza tra integration test ed end-to-end test?",
+      "answer": "Gli integration test verificano che i sistemi si parlino correttamente (frontend-backend, backend-DB), ma non testano l'interfaccia grafica vera. Gli E2E (Playwright, Cypress) aprono un browser reale e simulano le azioni di una persona, verificando l'esperienza utente effettiva. Gli integration test operano 'vicino al punto di vista dell'utente ma non del tutto', gli E2E stanno un gradino più in alto."
+    },
+    {
+      "id": "f10",
+      "question": "Quali due problemi risolvono i test doubles?",
+      "answer": "Primo, la velocità: ogni chiamata a un servizio esterno reale aggiunge decine o centinaia di millisecondi, e in un flusso TDD con test continui questo è insostenibile. Secondo, l'affidabilità: test che dipendono da DB, rete o stato esterno falliscono per ragioni estranee al codice sotto test. Un buon test deve fallire solo quando il codice è sbagliato, mai per cause esterne."
+    },
+    {
+      "id": "f11",
+      "question": "Qual è la differenza tecnica tra stub e mock?",
+      "answer": "Uno stub sostituisce una dipendenza restituendo un valore fisso: non ti interessa quante volte o come viene chiamato, solo che risponda. Un mock è più opinionato: registra come viene usato e permette di fare asserzioni (es. 'la funzione di save è stata chiamata esattamente una volta con questi parametri'). Si usa il mock quando il comportamento da testare è proprio l'interazione con la dipendenza."
+    },
+    {
+      "id": "f12",
+      "question": "Perché i test doubles sono quasi indispensabili nei microservizi?",
+      "answer": "Avviare tutti i servizi di un'architettura a microservizi localmente per ogni ciclo di test è impraticabile. Con i test doubles puoi simulare le risposte degli altri servizi e testare il tuo in isolamento, senza dipendere dall'infrastruttura completa. MSW (Mock Service Worker) è popolare nei progetti TypeScript perché intercetta le chiamate HTTP a livello di rete senza modificare il codice applicativo."
+    },
+    {
+      "id": "f13",
+      "question": "Come si distribuiscono i test doubles nella gerarchia dei test?",
+      "answer": "Gli unit test li usano massicciamente per eliminare ogni dipendenza esterna. Gli integration test li usano in modo selettivo: a volte preferisci un DB reale (in-memory o container Docker effimero) per il confine che stai testando, ma usi doubles per tutto ciò che è fuori da quel confine. Gli E2E tendono a evitarli: il loro valore sta nel testare il sistema reale end-to-end."
+    },
+    {
+      "id": "f14",
+      "question": "Qual è il segnale d'allarme più comune di abuso dei test doubles?",
+      "answer": "Un setup eccessivo: hai una classe o funzione che richiede decine di righe di mock per essere testabile, e invece di fermarti mocchi tutto ciò che dà fastidio. La difficoltà di testing è quasi sempre un riflesso fedele della qualità del design. La domanda giusta non è 'come testo questo codice così com'è?' ma 'perché questo codice è così difficile da testare?'. Il rimedio è il refactoring, non il mocking."
+    },
+    {
+      "id": "f15",
+      "question": "Perché le pure function sono banali da testare?",
+      "answer": "Una pure function riceve tutto ciò di cui ha bisogno tramite argomenti e restituisce un valore senza modificare nulla all'esterno: niente stato, niente side effect, niente contesto implicito. Questo la rende testabile senza setup e senza mock. Se una funzione richiede contorsioni per essere testata, probabilmente sta facendo troppe cose o dipende implicitamente da troppo contesto: è un problema di design."
+    },
+    {
+      "id": "f16",
+      "question": "Cosa significa 'Don't mock what you don't own' e qual è la soluzione?",
+      "answer": "Quando mocchi una libreria di terze parti stai scrivendo la tua interpretazione di come si comporta in un dato momento. Ma le API esterne cambiano e i mock non lo sanno: puoi avere una suite verde mentre l'app in produzione è rotta. In TypeScript i tipi danno falsa sicurezza (il mock rispetta i tipi attuali, che potrebbero essere obsoleti). La soluzione è un wrapper: un modulo che possiedi tu che fa da traduttore tra la libreria esterna e il resto del codice. Quello puoi mockarlo."
+    },
+    {
+      "id": "f17",
+      "question": "Cos'è un single-service integration test?",
+      "answer": "Testa un singolo componente (server, frontend, servizio auth) come sistema a sé stante, sostituendo con test doubles tutte le dipendenze esterne. L'obiettivo è verificare la logica interna del componente — validazione, routing, trasformazione dati, error handling — senza pagare il costo dell'I/O reale. Permette di coprire decine di scenari (ID non trovato, dati malformati, utente non autorizzato) in millisecondi ciascuno."
+    },
+    {
+      "id": "f18",
+      "question": "Cos'è un boundary integration test e perché è strutturalmente diverso?",
+      "answer": "Verifica che due componenti reali — senza sostituti — si parlino correttamente. Non si mocca nulla nella catena testata, perché il punto del test è l'interazione autentica. Per il boundary server-DB si usa un'istanza reale (container Docker effimero o mongodb-memory-server). È più lento per design, ma ne servono pochi: non bisogna ricoprire ogni scenario attraverso il confine, solo verificare che il confine funzioni. I casi limite li copri nei single-service test."
+    },
+    {
+      "id": "f19",
+      "question": "Come si complementano single-service e boundary test in una test pyramid?",
+      "answer": "La relazione è la stessa che hanno unit e single-service: ogni livello superiore testa connessioni più ampie, è più lento, e ne esistono meno. Conseguenza pratica: unit test ad ogni salvataggio, single-service ad ogni commit, boundary e E2E nella CI prima del deploy. Se un boundary test fallisce ma i single-service passano, sai subito dove guardare: il problema è al confine, non nella logica interna. È anche uno strumento diagnostico."
+    }
+  ],
+  "quiz": [
+    {
+      "id": "q1",
+      "question": "Il frontend TypeScript chiama /api/users/:id, il backend Express espone /api/user/:id. Entrambi hanno unit test al 100%. Quale tipo di test avrebbe intercettato il bug?",
+      "options": [
+        "Un ulteriore unit test ben scritto",
+        "Nessuno: è un bug di runtime non rilevabile da test automatici",
+        "Un integration test che chiama l'endpoint dal frontend e verifica la risposta",
+        "Un test di tipo (TypeScript strict mode)"
+      ],
+      "correctIndex": 2
+    },
+    {
+      "id": "q2",
+      "question": "Perché testare file come server.js di Express con unit test è considerato artificioso?",
+      "options": [
+        "Perché Express non supporta i test",
+        "Perché testare il cablaggio (route, middleware) richiede di mockare Express stesso, con enorme lavoro e valore minimo",
+        "Perché i file .js non sono tipizzabili in TypeScript",
+        "Perché Node.js blocca l'esecuzione dei test in ambienti concorrenti"
+      ],
+      "correctIndex": 1
+    },
+    {
+      "id": "q3",
+      "question": "Quale ruolo ha tipicamente afterEach nei test di integrazione con database?",
+      "options": [
+        "Chiude la connessione definitiva al database",
+        "Crea l'istanza del database di test",
+        "Fa rollback o svuota le tabelle per garantire l'isolamento tra test",
+        "Genera automaticamente i dati di seed"
+      ],
+      "correctIndex": 2
+    },
+    {
+      "id": "q4",
+      "question": "Nei due cicli annidati del TDD con integration test, cosa rappresenta il 'red esterno'?",
+      "options": [
+        "Il primo unit test che fallisce in una nuova feature",
+        "L'integration test che fallisce e definisce il confine della feature da implementare",
+        "Un errore di compilazione TypeScript",
+        "Il test di regressione che segnala una breaking change"
+      ],
+      "correctIndex": 1
+    },
+    {
+      "id": "q5",
+      "question": "In che modo la struttura a cicli annidati previene l'over-engineering?",
+      "options": [
+        "Vieta l'uso di pattern di design avanzati",
+        "L'integration test esterno definisce il confine della feature: se vuoi scrivere codice non coperto, devi prima scrivere un nuovo integration test che lo richieda",
+        "Impone un limite massimo di righe per ogni funzione",
+        "Obbliga a refactoring automatico dopo ogni test green"
+      ],
+      "correctIndex": 1
+    },
+    {
+      "id": "q6",
+      "question": "Qual è la differenza chiave tra integration test ed E2E test?",
+      "options": [
+        "Gli integration test sono più lenti degli E2E",
+        "Gli E2E aprono un browser reale e testano l'esperienza utente; gli integration test verificano che i sistemi si parlino ma si fermano prima dell'interfaccia grafica",
+        "Gli E2E non richiedono setup, gli integration sì",
+        "Non c'è nessuna differenza pratica"
+      ],
+      "correctIndex": 1
+    },
+    {
+      "id": "q7",
+      "question": "Qual è il problema più sottile dei test che dipendono da servizi esterni reali?",
+      "options": [
+        "Richiedono TypeScript in strict mode",
+        "Non supportano il parallelismo",
+        "Sono fragili: falliscono per cause esterne al codice (DB down, rete lenta, dati modificati), non perché il codice è sbagliato",
+        "Non possono essere integrati nella CI"
+      ],
+      "correctIndex": 2
+    },
+    {
+      "id": "q8",
+      "question": "Voglio verificare che la funzione save del repository venga chiamata esattamente una volta con un certo payload. Cosa uso?",
+      "options": [
+        "Uno stub, perché sostituisce la dipendenza",
+        "Un mock, perché registra le chiamate e permette asserzioni sul loro numero e parametri",
+        "Un test doubles di tipo fake",
+        "Un integration test con database reale"
+      ],
+      "correctIndex": 1
+    },
+    {
+      "id": "q9",
+      "question": "Una funzione richiede 30 righe di mock per essere testabile. Qual è la lettura corretta della situazione?",
+      "options": [
+        "Il mocking framework è probabilmente inadeguato",
+        "È normale, tutte le funzioni business hanno questo livello di setup",
+        "La difficoltà di testing riflette un problema di design: la funzione è troppo accoppiata, fa troppe cose o ha stato implicito; il rimedio è refactoring",
+        "Occorre aumentare il timeout dei test"
+      ],
+      "correctIndex": 2
+    },
+    {
+      "id": "q10",
+      "question": "Perché 'Don't mock what you don't own' è una buona regola empirica?",
+      "options": [
+        "Per motivi di licenza open source",
+        "Perché le API esterne cambiano: i tuoi mock possono essere verdi mentre l'app in produzione è rotta. Meglio creare un wrapper che possiedi tu e mockare quello",
+        "Perché TypeScript non supporta il mocking di moduli di terze parti",
+        "Perché i test con mock di librerie esterne sono sempre più lenti"
+      ],
+      "correctIndex": 1
+    },
+    {
+      "id": "q11",
+      "question": "Devi coprire 20 scenari diversi per l'endpoint GET /api/companies/:id (ID non trovato, dati malformati, utente non autorizzato, ecc). Quale approccio è più sensato?",
+      "options": [
+        "20 boundary test con database reale, per massima fedeltà",
+        "20 single-service test con DB mockato (millisecondi ciascuno) più pochi boundary test che verifichino solo che il confine col DB funzioni",
+        "20 E2E test con browser automation",
+        "Un unico test che copra tutti gli scenari in sequenza"
+      ],
+      "correctIndex": 1
+    },
+    {
+      "id": "q12",
+      "question": "Un boundary test fallisce ma tutti i single-service test passano. Dove conviene guardare per primo?",
+      "options": [
+        "Nella logica interna del componente (validazioni, trasformazioni)",
+        "Al confine tra i due sistemi: connessione DB, serializzazione, timeout di rete o configurazione",
+        "Nel codice dei test stessi, ci sarà sicuramente un bug nel test",
+        "Nella configurazione di CI/CD"
+      ],
+      "correctIndex": 1
+    }
+  ]
+}
