@@ -18,9 +18,13 @@
 
 ## General Rules
 
-- Always use ES modules syntax, not CommonJS
-- Prefer `interface extends` over `type` with `&` (intersection) for extending types where appropriate
-- Prefer the `readonly T[]` syntax over `ReadonlyArray<T>` for readonly arrays
-- Prefer functional style over object oriented style
-- **Single Responsability** - Functions should have a single responsibility, meaning do one thing and do it well.
-- **Well-Written Prose** - Functions should read like prose, with if/else/while blocks containing just one or two lines (often function calls). Indent levels should rarely exceed one or two
+- Always use ES modules syntax, not CommonJS.
+- Prefer `interface extends` over `type` with `&` (intersection) for extending types where appropriate.
+- Prefer the `readonly T[]` syntax over `ReadonlyArray<T>` for readonly arrays.
+- Avoid `any` and instead use `unknown` whenever possible.
+- Use `node:` prefix when working with the built-in modules in Node.
+- Prefer functional style over object oriented style.
+  - Prefer pure functions with narrow contracts.
+  - Functions should have a single responsibility: do one thing and do it well.
+  - Functions should read like prose, with if/else/while blocks containing just one or two lines (often function calls). Indent levels should rarely exceed one or two.
+  - Avoid chaining more than 1 level deep (a.b().c() is suspicious), provide explicit service/helper methods instead.
