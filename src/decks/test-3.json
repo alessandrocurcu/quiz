@@ -1,0 +1,245 @@
+{
+  "title": "TDD Fundamentals: Behavior, Boundaries, Building Blocks",
+  "flashcards": [
+    {
+      "id": "f1",
+      "question": "Cosa significa 'un test descrive un comportamento atteso in forma eseguibile'?",
+      "answer": "Un test non è solo verifica: è specifica eseguibile. Il nome del test (es. 'starts out empty') è documentazione di ciò che il sistema deve fare, e il fallimento del test sei mesi dopo dirà esattamente cosa il sistema si aspettava. Ogni test è un esempio concreto del comportamento richiesto, leggibile prima ancora dal team che dal computer."
+    },
+    {
+      "id": "f2",
+      "question": "Perché si dice che la suite di test è una 'safety net' e non solo una suite di verifica?",
+      "answer": "Ogni singolo test sembra banale preso da solo, ma insieme proteggono tutto il lavoro precedente del team. La safety net abilita il refactoring senza paura: se rompi qualcosa lo sai immediatamente. Senza questa rete, ogni modifica diventa un atto di fede e il codice tende a fossilizzarsi."
+    },
+    {
+      "id": "f3",
+      "question": "Cosa testa davvero un 'unit test'? Un metodo o qualcos'altro?",
+      "answer": "Una unità di comportamento, non un metodo. A volte verificare un comportamento richiede più chiamate sullo stesso oggetto (es. add() seguito da has()) e va benissimo: il comportamento è la cosa da isolare, non il metodo. Un test che testa 'la Box sa cosa contiene' può legittimamente usare due metodi insieme."
+    },
+    {
+      "id": "f4",
+      "question": "A cosa serve beforeEach in una test suite?",
+      "answer": "Garantisce un oggetto o stato fresco prima di ogni test, eliminando dipendenze tra scenari. È il principio DRY applicato ai test: invece di ripetere il setup all'inizio di ogni it(), lo centralizzi. Critico per l'isolamento: due test non devono mai condividere stato mutabile, altrimenti il fallimento di uno può inquinare gli altri in modo non deterministico."
+    },
+    {
+      "id": "f5",
+      "question": "Cos'è una behavioral boundary?",
+      "answer": "Il confine concettuale tra due input simili che producono comportamenti diversi — non solo risultati diversi, ma percorsi di codice diversi. Es. su un VolumeDial 0-10: tra -1 (errore) e 0 (spento) c'è una boundary; tra 10 (massimo) e 11 (errore) c'è un'altra boundary. Tra 1 e 9 invece nessuna boundary, perché tutti seguono la stessa logica (value * 10)."
+    },
+    {
+      "id": "f6",
+      "question": "Quali sono i tre segnali per identificare le behavioral boundaries nel codice?",
+      "answer": "Primo, ogni condizione booleana (if, switch, ternario) divide il territorio in almeno due regioni e il confine è al valore di soglia. Secondo, i valori speciali semantici del dominio: zero, null, stringa vuota, dimensione massima di un array, scadenza di una data. Terzo, i cambi di tipo di risposta: risultato valido vs errore, array vuoto vs array con elementi, queste transizioni sono boundaries."
+    },
+    {
+      "id": "f7",
+      "question": "Qual è la domanda guida da porsi mentre si scelgono i test da scrivere?",
+      "answer": "'Quale valore mi costringerà a scrivere codice più intelligente?' Se due test possono essere soddisfatti dalla stessa identica logica, uno dei due è ridondante. Devi cercare attivamente i valori che attraversano una behavioral boundary, non quelli che testano la stessa regione del comportamento."
+    },
+    {
+      "id": "f8",
+      "question": "Quali sono le tre fasi del ciclo TDD?",
+      "answer": "Red: scrivi un test che fallisce, e assicurati che fallisca per il motivo giusto (l'assertion, non un errore di sintassi). Green: scrivi il MINIMO codice necessario per farlo passare, anche un valore hardcoded è legittimo qui. Refactor: migliora codice E test senza aggiungere funzionalità, poi ricomincia."
+    },
+    {
+      "id": "f9",
+      "question": "Qual è la struttura Given/When/Then di un test?",
+      "answer": "Given è il contesto: tutto ciò che deve essere vero prima che il comportamento venga esercitato. When è l'azione: la singola chiamata sotto test. Then è la verifica: cosa ti aspetti sia accaduto. Non è una struttura estetica: ti costringe a rispondere prima di scrivere una riga 'qual è esattamente l'outcome atteso?'. Se non lo sai, non sei pronto a scrivere il test."
+    },
+    {
+      "id": "f10",
+      "question": "Cos'è la mossa 'Fake It (Till You Make It)' e perché è utile?",
+      "answer": "Restituire un valore costante hardcoded sufficiente a far passare il test corrente, niente di più. Sembra contraddittorio ma è la mossa più utile a inizio di un nuovo comportamento, perché ogni riga di logica scritta senza un test che la guidi è una riga fuori dalla safety net. Il valore hardcoded è intenzionale: serve a forzarti a scrivere il prossimo test prima di generalizzare."
+    },
+    {
+      "id": "f11",
+      "question": "Cos'è la triangulation e quando si usa?",
+      "answer": "È la tecnica per spingere l'implementazione oltre il valore hardcoded del Fake It. Si scrive un secondo test che testa l'altro lato della behavioral boundary appena esposta. Se Fake It restituisce true per 'è vuoto', la triangolazione chiede: cosa implica che un gruppo possa essere vuoto? Implica un gruppo non vuoto, e scrivi il test per quello. Costringe la generalizzazione invece di farla 'a occhio'."
+    },
+    {
+      "id": "f12",
+      "question": "Quando è legittima la mossa 'Obvious Implementation'?",
+      "answer": "Quando la logica è talmente semplice da sapere già come scriverla, E hai abbastanza test triangolati per coprire le behavioral boundaries rilevanti. Attenzione alla trappola: 'è ovvio' è diverso da 'mi sembra ovvio', e la differenza è dove vivono i bug. Non usarla come scusa per saltare la triangolazione."
+    },
+    {
+      "id": "f13",
+      "question": "Cos'è la to-do list nel TDD e cosa NON è?",
+      "answer": "Un elenco brevissimo di scenari da testare che costruisci mentre lavori sul task corrente. NON è un backlog di prodotto, NON è una pianificazione di lungo termine: è una nota mentale esternalizzata, rilevante solo per il task in corso. Cattura le idee di test che ti vengono mentre stai scrivendo il test corrente, così non le dimentichi e non ti distraggi dal flusso."
+    },
+    {
+      "id": "f14",
+      "question": "Cosa puoi e cosa non puoi fare quando sei 'in the red'?",
+      "answer": "Quando sei in the red il tuo UNICO obiettivo è tornare al verde nel modo più rapido e sicuro possibile. Nessuna discussione di design, nessun refactoring, nessuna distrazione. Se non riesci a tornare al verde entro pochi minuti, cancella l'ultimo test e scrivine uno più piccolo. Il rosso è uno stato di emergenza, non un'opportunità per riflettere."
+    },
+    {
+      "id": "f15",
+      "question": "Cosa puoi fare quando sei 'in the green'?",
+      "answer": "È l'unico stato sicuro per fare qualsiasi cosa che non sia 'arrivare al verde': pensare, discutere, refactorare, pianificare il prossimo passo, valutare il design. Tutta l'attività cognitiva di alto livello va fatta da verde, perché solo da verde hai la safety net che ti dice se stai rompendo qualcosa con le tue riflessioni."
+    },
+    {
+      "id": "f16",
+      "question": "Cos'è il 'compounding' del TDD?",
+      "answer": "I comportamenti già testati diventano mattoni su cui costruire quelli successivi. Non devi ritestare ciò che è già coperto: puoi usarlo con fiducia nei test nuovi. Ogni comportamento guadagnato rende il prossimo più facile da costruire e testare, perché poggia su fondamenta verificate. La velocità di sviluppo cresce nel tempo invece di calare."
+    },
+    {
+      "id": "f17",
+      "question": "Cos'è la 'Jetlagged Intern Mind'?",
+      "answer": "Lo strumento diagnostico più prezioso del capitolo 3. Quando sei in the green, chiediti: 'potrebbe un nuovo developer ragionevole, fresco di viaggio intercontinentale, semplificare o ottimizzare questa implementazione in modo sbagliato, e la safety net se ne accorgerebbe?'. Se la risposta è no, manca un test. Forza a pensare ai modi in cui il codice può essere mal-modificato in futuro."
+    },
+    {
+      "id": "f18",
+      "question": "Cosa significa il pattern 'verifica anche l'assenza'?",
+      "answer": "Per ogni comportamento che afferma 'questo c'è', scrivi un test gemello che afferma 'quest'altro non c'è'. Non testare solo che il risultato contenga ciò che deve, ma anche che NON contenga ciò che non deve. I side effect non testati sono buchi nella safety net: la presenza è metà della specifica, l'assenza è l'altra metà."
+    },
+    {
+      "id": "f19",
+      "question": "Cos'è 'combining behaviors' e qual è la sua implicazione pratica?",
+      "answer": "Quando costruisci i comportamenti nel giusto ordine, l'implementazione dei comportamenti complessi emerge quasi da sola, perché puoi comporli da quelli semplici già testati. Implicazione pratica: l'ordine in cui costruisci i comportamenti ha un effetto diretto sulla complessità dell'implementazione finale. Salvare certi task per ultimi, dopo aver costruito le fondamenta, li rende banali."
+    }
+  ],
+  "quiz": [
+    {
+      "id": "q1",
+      "question": "Cosa testa davvero un unit test?",
+      "options": [
+        "Un singolo metodo, sempre uno alla volta",
+        "Un'intera classe in tutti i suoi metodi pubblici",
+        "Una singola unità di comportamento, anche se richiede più chiamate sullo stesso oggetto",
+        "Un singolo file sorgente del progetto"
+      ],
+      "correctIndex": 2
+    },
+    {
+      "id": "q2",
+      "question": "Hai un VolumeDial che accetta valori 0-10. Tra quali coppie di valori esistono behavioral boundaries?",
+      "options": [
+        "Tra 1-2, 2-3, 3-4 ecc., perché ogni incremento è un comportamento diverso",
+        "Tra -1/0 e tra 10/11, perché lì cambia il percorso di codice (errore vs valore valido)",
+        "Solo tra 0 e 10, gli estremi del range",
+        "In nessun punto: la funzione è continua"
+      ],
+      "correctIndex": 1
+    },
+    {
+      "id": "q3",
+      "question": "Qual è la domanda guida per scegliere il prossimo test da scrivere?",
+      "options": [
+        "Qual è il valore più realistico che un utente passerebbe?",
+        "Quale valore mi costringerà a scrivere codice più intelligente?",
+        "Qual è il caso che fa fallire più velocemente la build?",
+        "Quale valore copre più rami del flusso?"
+      ],
+      "correctIndex": 1
+    },
+    {
+      "id": "q4",
+      "question": "Sei nella fase Green del ciclo TDD. Il test richiede che la funzione restituisca true quando una box è vuota. Cosa scrivi?",
+      "options": [
+        "L'implementazione completa con tutti i casi gestiti correttamente",
+        "return true; come Fake It, e procedi al prossimo test che triangola",
+        "Una bozza di implementazione con TODO da completare in seguito",
+        "Niente, prima refactori i test esistenti"
+      ],
+      "correctIndex": 1
+    },
+    {
+      "id": "q5",
+      "question": "A cosa serve veramente la struttura Given/When/Then?",
+      "options": [
+        "A standardizzare la formattazione dei test per il team",
+        "A costringerti a definire l'outcome atteso prima di scrivere il test, e a separare contesto, azione e verifica",
+        "A generare automaticamente la documentazione",
+        "A permettere l'esecuzione in parallelo dei test"
+      ],
+      "correctIndex": 1
+    },
+    {
+      "id": "q6",
+      "question": "Quando è legittimo usare l'Obvious Implementation invece del Fake It + Triangulation?",
+      "options": [
+        "Sempre, è la mossa più efficiente del TDD",
+        "Mai, perché bypassa la safety net",
+        "Quando la logica è davvero semplice E hai già abbastanza test triangolati per coprire le behavioral boundaries rilevanti",
+        "Solo quando lavori da solo, mai in team"
+      ],
+      "correctIndex": 2
+    },
+    {
+      "id": "q7",
+      "question": "Sei in the red da 10 minuti, non riesci a far passare il test. Qual è il consiglio del libro?",
+      "options": [
+        "Persisti finché non ce la fai, è un buon esercizio mentale",
+        "Cancella l'ultimo test e scrivine uno più piccolo, più facile da soddisfare",
+        "Skippalo con .skip e passa al prossimo",
+        "Scrivi temporaneamente l'implementazione completa per poi tornare al test"
+      ],
+      "correctIndex": 1
+    },
+    {
+      "id": "q8",
+      "question": "In quale stato del ciclo TDD si discutono design, refactoring e prossimi passi?",
+      "options": [
+        "In the red, mentre il dolore del fallimento ispira",
+        "Subito dopo aver scritto il test, prima di farlo passare",
+        "In the green, l'unico stato sicuro per fare qualsiasi cosa che non sia tornare al verde",
+        "Solo nelle code review settimanali"
+      ],
+      "correctIndex": 2
+    },
+    {
+      "id": "q9",
+      "question": "Cos'è la to-do list nel TDD?",
+      "options": [
+        "Il backlog di prodotto del team",
+        "Una pianificazione di sprint per le prossime due settimane",
+        "Un elenco breve di scenari da testare che costruisci mentre lavori sul task corrente, esternalizzando le idee per non perderle",
+        "Un documento di specifica formale dei requisiti"
+      ],
+      "correctIndex": 2
+    },
+    {
+      "id": "q10",
+      "question": "La 'Jetlagged Intern Mind' è uno strumento per chiederti:",
+      "options": [
+        "Se il tuo codice è leggibile da sviluppatori junior",
+        "Se un nuovo developer ragionevole, in stato di stanchezza, potrebbe semplificare o ottimizzare il codice in modo sbagliato senza che la safety net se ne accorga",
+        "Se i nomi delle variabili sono abbastanza espressivi",
+        "Quanto tempo serve per onboardare un nuovo membro del team"
+      ],
+      "correctIndex": 1
+    },
+    {
+      "id": "q11",
+      "question": "Qual è il pattern 'verifica anche l'assenza'?",
+      "options": [
+        "Ogni test deve avere un assert .not corrispondente",
+        "Per ogni comportamento che afferma 'questo c'è', si scrive un test gemello che afferma 'quest'altro non c'è'",
+        "I test devono fallire la prima volta che vengono scritti",
+        "Bisogna sempre testare il caso del valore null"
+      ],
+      "correctIndex": 1
+    },
+    {
+      "id": "q12",
+      "question": "Cosa implica il principio del 'combining behaviors' del capitolo 3?",
+      "options": [
+        "Ogni test dovrebbe combinare almeno due comportamenti per essere più realistico",
+        "L'ordine in cui costruisci i comportamenti influisce direttamente sulla complessità dell'implementazione finale: salvare certi task per ultimi li rende banali da implementare",
+        "I comportamenti complessi vanno implementati prima di quelli semplici",
+        "I test devono sempre essere indipendenti tra loro per principio"
+      ],
+      "correctIndex": 1
+    },
+    {
+      "id": "q13",
+      "question": "Qual è la lettura corretta dell'aforisma: 'ogni bug in produzione è un test mancante o un test troppo vago'?",
+      "options": [
+        "Significa che bisogna puntare alla code coverage al 100%",
+        "Significa che la safety net ha un buco e di solito basta un test in più per chiuderlo, trasformando il bug in una specifica futura mai più infranta",
+        "È un'esagerazione retorica, in pratica molti bug sono inevitabili",
+        "Significa che servono solo più test E2E"
+      ],
+      "correctIndex": 1
+    }
+  ]
+}
