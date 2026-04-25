@@ -22,9 +22,6 @@ defineEmits<{ flip: [] }>()
   >
     <div class="card-inner" :class="{ 'card-inner--flipped': isFlipped }">
       <div class="card-face card-front">
-        <p class="card-ghost" aria-hidden="true">
-          {{ answer }}
-        </p>
         <p class="card-question">
           {{ question }}
         </p>
@@ -85,22 +82,6 @@ defineEmits<{ flip: [] }>()
 
 .card-back {
   transform: rotateY(180deg);
-}
-
-.card-ghost {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 3rem;
-  font-weight: 700;
-  color: var(--color-text);
-  opacity: 0.06;
-  padding: 1.5rem;
-  text-align: center;
-  pointer-events: none;
-  user-select: none;
 }
 
 .card-question {
