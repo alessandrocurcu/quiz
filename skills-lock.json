@@ -16,6 +16,12 @@
       "sourceType": "github",
       "computedHash": "a6d4913e72e4e45c7064bf64ec800733ddd415172d532133142cc12076d02814"
     },
+    "skill-creator": {
+      "source": "alessandrocurcu/skills",
+      "sourceType": "github",
+      "skillPath": "skills/skill-creator/SKILL.md",
+      "computedHash": "77748e0479e0da7483f64a394256d7b3f69250f2bdd2ea6bd3c16011d2cbba43"
+    },
     "vue-best-practices": {
       "source": "alessandrocurcu/skills",
       "sourceType": "github",
