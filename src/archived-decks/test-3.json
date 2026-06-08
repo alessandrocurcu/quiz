@@ -95,6 +95,12 @@
       "id": "f19",
       "question": "Cos'è 'combining behaviors' e qual è la sua implicazione pratica?",
       "answer": "Quando costruisci i comportamenti nel giusto ordine, l'implementazione dei comportamenti complessi emerge quasi da sola, perché puoi comporli da quelli semplici già testati. Implicazione pratica: l'ordine in cui costruisci i comportamenti ha un effetto diretto sulla complessità dell'implementazione finale. Salvare certi task per ultimi, dopo aver costruito le fondamenta, li rende banali."
+    },
+    {
+      "id": "f20",
+      "question": "Cosa è la cosa più importante da ricordare?",
+      "custom": true,
+      "answer": "Un 'unit test' non testa un singolo metodo — testa una singola unità di comportamento."
     }
   ],
   "quiz": [
