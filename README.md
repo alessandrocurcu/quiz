@@ -1,48 +1,60 @@
-# quiz
+# Study Deck
 
-This template should help get you started developing with Vue 3 in Vite.
+SPA Vue 3 per lo studio personale tramite flashcard e quiz. Nessun backend, nessun account — funziona interamente nel browser.
 
-## Recommended IDE Setup
+## Funzionalità
 
-[VS Code](https://code.visualstudio.com/) + [Vue (Official)](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
+- **Carica un deck** — seleziona uno o più file JSON dal dispositivo
+- **Flashcard** — flip card in ordine casuale, segna le carte corrette
+- **Quiz** — scelta multipla con feedback immediato, ordine casuale
+- **Ripassa errori** — filtra solo le card non ancora corrette
+- Il progresso è salvato in `localStorage` e persiste tra sessioni
 
-## Recommended Browser Setup
+## Formato JSON
 
-- Chromium-based browsers (Chrome, Edge, Brave, etc.):
-  - [Vue.js devtools](https://chromewebstore.google.com/detail/vuejs-devtools/nhdogjmejiglipccpnnnanhbledajbpd)
-  - [Turn on Custom Object Formatter in Chrome DevTools](http://bit.ly/object-formatters)
-- Firefox:
-  - [Vue.js devtools](https://addons.mozilla.org/en-US/firefox/addon/vue-js-devtools/)
-  - [Turn on Custom Object Formatter in Firefox DevTools](https://fxdx.dev/firefox-devtools-custom-object-formatters/)
+```json
+{
+  "title": "Nome del deck",
+  "flashcards": [
+    { "id": "fc-1", "question": "...", "answer": "..." }
+  ],
+  "quiz": [
+    {
+      "id": "q-1",
+      "question": "...",
+      "options": ["A", "B", "C", "D"],
+      "correctIndex": 1
+    }
+  ]
+}
+```
 
-## Type Support for `.vue` Imports in TS
+Un file di esempio scaricabile è disponibile in `public/example-deck.json`.
 
-TypeScript cannot handle type information for `.vue` imports by default, so we replace the `tsc` CLI with `vue-tsc` for type checking. In editors, we need [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) to make the TypeScript language service aware of `.vue` types.
+## Generare un deck con Claude Code
 
-## Customize configuration
+Con Claude Code attivo nella repo, puoi generare un deck da qualsiasi testo (articolo, capitolo, nota tecnica):
 
-See [Vite Configuration Reference](https://vite.dev/config/).
+```
+/study-deck-generator
+```
 
-## Project Setup
+Incolla o indica il testo sorgente e la skill produce direttamente il file JSON in `src/decks/`, pronto da usare.
+
+## Deck pre-caricati (sviluppo)
+
+Copia un file JSON in `src/decks/` — il dev server lo rileva automaticamente via `import.meta.glob`.
+
+## Setup
 
 ```sh
 pnpm install
+pnpm dev        # dev server su localhost:5173
+pnpm build      # build di produzione
+pnpm type-check # controllo TypeScript
+pnpm lint:fix   # lint + autofix
 ```
 
-### Compile and Hot-Reload for Development
+## Deploy
 
-```sh
-pnpm dev
-```
-
-### Type-Check, Compile and Minify for Production
-
-```sh
-pnpm build
-```
-
-### Lint with [ESLint](https://eslint.org/)
-
-```sh
-pnpm lint
-```
+Configurato per Netlify (`netlify.toml`). Tutte le route reindirizzano a `index.html`.
