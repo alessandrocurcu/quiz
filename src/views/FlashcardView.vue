@@ -1,59 +1,59 @@
 <script setup lang="ts">
-import type { Flashcard } from '../types'
-import { computed, shallowRef } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
-import FlashcardCard from '../components/FlashcardCard.vue'
-import { useDeckStore } from '../composables/useDeckStore'
-import { useProgress } from '../composables/useProgress'
+import type { Flashcard } from '../types';
+import { computed, shallowRef } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
+import FlashcardCard from '../components/FlashcardCard.vue';
+import { useDeckStore } from '../composables/useDeckStore';
+import { useProgress } from '../composables/useProgress';
 
-const route = useRoute()
-const router = useRouter()
-const { decks } = useDeckStore()
+const route = useRoute();
+const router = useRouter();
+const { decks } = useDeckStore();
 
-const deckIndex = Number(route.params.index)
-const deck = decks.value[deckIndex]
+const deckIndex = Number(route.params.index);
+const deck = decks.value[deckIndex];
 
 if (!deck) {
-  router.replace({ name: 'home' })
+  router.replace({ name: 'home' });
 }
 
 function shuffle<T>(arr: T[]): T[] {
-  const a = [...arr]
+  const a = [...arr];
   for (let i = a.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1))
-    const temp = a[i] as T
-    a[i] = a[j] as T
-    a[j] = temp
+    const j = Math.floor(Math.random() * (i + 1));
+    const temp = a[i] as T;
+    a[i] = a[j] as T;
+    a[j] = temp;
   }
-  return a
+  return a;
 }
 
-const isErrorsMode = route.query.mode === 'errors'
+const isErrorsMode = route.query.mode === 'errors';
 
-const { isCorrect, markCorrect } = useProgress(deck?.title ?? '')
+const { isCorrect, markCorrect } = useProgress(deck?.title ?? '');
 
 const shuffled = shallowRef<Flashcard[]>(
   deck
     ? shuffle(deck.flashcards.filter(c => !isErrorsMode || !isCorrect(c.id)))
     : [],
-)
-const currentIndex = shallowRef(0)
-const isFlipped = shallowRef(false)
+);
+const currentIndex = shallowRef(0);
+const isFlipped = shallowRef(false);
 
-const currentCard = computed(() => shuffled.value[currentIndex.value])
+const currentCard = computed(() => shuffled.value[currentIndex.value]);
 
 const currentCardCorrect = computed(
   () => !!currentCard.value && isCorrect(currentCard.value.id),
-)
+);
 
 function next() {
-  currentIndex.value = (currentIndex.value + 1) % shuffled.value.length
-  isFlipped.value = false
+  currentIndex.value = (currentIndex.value + 1) % shuffled.value.length;
+  isFlipped.value = false;
 }
 
 function handleMarkCorrect() {
   if (currentCard.value)
-    markCorrect(currentCard.value.id)
+    markCorrect(currentCard.value.id);
 }
 </script>
 

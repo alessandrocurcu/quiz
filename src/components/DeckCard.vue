@@ -1,13 +1,13 @@
 <script setup lang="ts">
-import type { Deck } from '../types'
-import { useRouter } from 'vue-router'
+import type { Deck } from '../types';
+import { useRouter } from 'vue-router';
 
 const props = defineProps<{
-  deck: Deck
-  index: number
-}>()
+  deck: Deck;
+  index: number;
+}>();
 
-const router = useRouter()
+const router = useRouter();
 </script>
 
 <template>

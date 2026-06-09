@@ -1,73 +1,73 @@
 <script setup lang="ts">
-import type { QuizQuestion } from '../types'
-import { computed, shallowRef } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
-import QuizCard from '../components/QuizCard.vue'
-import { useDeckStore } from '../composables/useDeckStore'
-import { useProgress } from '../composables/useProgress'
+import type { QuizQuestion } from '../types';
+import { computed, shallowRef } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
+import QuizCard from '../components/QuizCard.vue';
+import { useDeckStore } from '../composables/useDeckStore';
+import { useProgress } from '../composables/useProgress';
 
-const route = useRoute()
-const router = useRouter()
-const { decks } = useDeckStore()
+const route = useRoute();
+const router = useRouter();
+const { decks } = useDeckStore();
 
-const deckIndex = Number(route.params.index)
-const deck = decks.value[deckIndex]
+const deckIndex = Number(route.params.index);
+const deck = decks.value[deckIndex];
 
 if (!deck) {
-  router.replace({ name: 'home' })
+  router.replace({ name: 'home' });
 }
 
 interface ShuffledQuestion {
-  id: string
-  question: string
-  options: string[]
-  correctIndex: number
+  id: string;
+  question: string;
+  options: string[];
+  correctIndex: number;
 }
 
 function shuffleArray<T>(arr: T[]): T[] {
-  const a = [...arr]
+  const a = [...arr];
   for (let i = a.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1))
-    const temp = a[i] as T
-    a[i] = a[j] as T
-    a[j] = temp
+    const j = Math.floor(Math.random() * (i + 1));
+    const temp = a[i] as T;
+    a[i] = a[j] as T;
+    a[j] = temp;
   }
-  return a
+  return a;
 }
 
 function shuffleQuestion(q: QuizQuestion): ShuffledQuestion {
-  const pairs = q.options.map((text, i) => ({ text, i }))
-  const shuffled = shuffleArray(pairs)
+  const pairs = q.options.map((text, i) => ({ text, i }));
+  const shuffled = shuffleArray(pairs);
   return {
     id: q.id,
     question: q.question,
     options: shuffled.map(p => p.text),
     correctIndex: shuffled.findIndex(p => p.i === q.correctIndex),
-  }
+  };
 }
 
 const shuffled = shallowRef<ShuffledQuestion[]>(
   deck ? shuffleArray(deck.quiz).map(shuffleQuestion) : [],
-)
-const currentIndex = shallowRef(0)
-const selected = shallowRef<number | null>(null)
+);
+const currentIndex = shallowRef(0);
+const selected = shallowRef<number | null>(null);
 
-const currentQuestion = computed(() => shuffled.value[currentIndex.value])
+const currentQuestion = computed(() => shuffled.value[currentIndex.value]);
 
-const { isCorrect, markCorrect } = useProgress(deck?.title ?? '')
+const { isCorrect, markCorrect } = useProgress(deck?.title ?? '');
 
 function handleSelect(index: number) {
   if (selected.value !== null || !currentQuestion.value)
-    return
-  selected.value = index
+    return;
+  selected.value = index;
   if (index === currentQuestion.value.correctIndex) {
-    markCorrect(currentQuestion.value.id)
+    markCorrect(currentQuestion.value.id);
   }
 }
 
 function next() {
-  currentIndex.value = (currentIndex.value + 1) % shuffled.value.length
-  selected.value = null
+  currentIndex.value = (currentIndex.value + 1) % shuffled.value.length;
+  selected.value = null;
 }
 </script>
 

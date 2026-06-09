@@ -1,48 +1,48 @@
 <script setup lang="ts">
-import type { Deck } from '../types'
-import { shallowRef, useTemplateRef } from 'vue'
-import DeckCard from '../components/DeckCard.vue'
-import { useDeckStore } from '../composables/useDeckStore'
+import type { Deck } from '../types';
+import { shallowRef, useTemplateRef } from 'vue';
+import DeckCard from '../components/DeckCard.vue';
+import { useDeckStore } from '../composables/useDeckStore';
 
-const { decks, addDeck } = useDeckStore()
-const fileInput = useTemplateRef<HTMLInputElement>('fileInput')
-const errors = shallowRef<string[]>([])
+const { decks, addDeck } = useDeckStore();
+const fileInput = useTemplateRef<HTMLInputElement>('fileInput');
+const errors = shallowRef<string[]>([]);
 
 function isDeck(obj: unknown): obj is Deck {
   if (typeof obj !== 'object' || obj === null)
-    return false
-  const d = obj as Record<string, unknown>
+    return false;
+  const d = obj as Record<string, unknown>;
   return (
     typeof d.title === 'string'
     && Array.isArray(d.flashcards)
     && Array.isArray(d.quiz)
-  )
+  );
 }
 
 async function handleFiles(event: Event) {
-  const files = (event.target as HTMLInputElement).files
+  const files = (event.target as HTMLInputElement).files;
   if (!files?.length)
-    return
+    return;
 
-  const newErrors: string[] = []
+  const newErrors: string[] = [];
 
   for (const file of files) {
     try {
-      const parsed: unknown = JSON.parse(await file.text())
+      const parsed: unknown = JSON.parse(await file.text());
       if (!isDeck(parsed)) {
-        newErrors.push(`"${file.name}": formato non valido`)
-        continue
+        newErrors.push(`"${file.name}": formato non valido`);
+        continue;
       }
-      addDeck(parsed)
+      addDeck(parsed);
     }
     catch {
-      newErrors.push(`"${file.name}": JSON non valido`)
+      newErrors.push(`"${file.name}": JSON non valido`);
     }
   }
 
-  errors.value = newErrors
+  errors.value = newErrors;
   if (fileInput.value)
-    fileInput.value.value = ''
+    fileInput.value.value = '';
 }
 </script>
 

@@ -1,26 +1,26 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed } from 'vue';
 
 const props = defineProps<{
-  question: string
-  options: string[]
-  correctIndex: number
-  selected: number | null
-}>()
+  question: string;
+  options: string[];
+  correctIndex: number;
+  selected: number | null;
+}>();
 
-const emit = defineEmits<{ select: [index: number] }>()
+const emit = defineEmits<{ select: [index: number] }>();
 
 function optionClass(index: number) {
   if (props.selected === null)
-    return 'option'
+    return 'option';
   if (index === props.correctIndex)
-    return 'option option--correct'
+    return 'option option--correct';
   if (index === props.selected)
-    return 'option option--wrong'
-  return 'option option--dimmed'
+    return 'option option--wrong';
+  return 'option option--dimmed';
 }
 
-const isAnswered = computed(() => props.selected !== null)
+const isAnswered = computed(() => props.selected !== null);
 </script>
 
 <template>

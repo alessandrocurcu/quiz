@@ -1,12 +1,12 @@
 <script setup lang="ts">
 defineProps<{
-  question: string
-  answer: string
-  isCorrect: boolean
-  isFlipped: boolean
-}>()
+  question: string;
+  answer: string;
+  isCorrect: boolean;
+  isFlipped: boolean;
+}>();
 
-defineEmits<{ flip: [] }>()
+defineEmits<{ flip: [] }>();
 </script>
 
 <template>
