@@ -1,8 +1,11 @@
 {
   "name": "quiz",
   "type": "module",
-  "version": "0.0.0",
-  "private": true,
+  "version": "0.1.0",
+  "private": false,
+  "packageManager": "pnpm@10.33.0",
+  "author": "Alessandro Curcu <aleqrq@gmail.com>",
+  "license": "ISC",
   "engines": {
     "node": "^22.22.2 || ^24.15.0 || >=26.0.0"
   },
